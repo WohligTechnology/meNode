@@ -10,45 +10,31 @@ module.exports = {
             if (db) {
                 if (!data._id) {
                     data._id = sails.ObjectID();
-                    db.collection("job").find({
-                        "name": data.name
-                    }).toArray(function (err, data2) {
+                    db.collection('job').insert(data, function (err, created) {
                         if (err) {
                             console.log(err);
                             callback({
-                                value: false
+                                value: false,
+                                comment: "Error"
                             });
                             db.close();
-                        } else if (data2 && data2[0]) {
-                            callback(data2);
+                        } else if (created) {
+                            callback({
+                                value: true,
+                                id: data._id
+                            });
                             db.close();
                         } else {
-                            db.collection('job').insert(data, function (err, created) {
-                                if (err) {
-                                    console.log(err);
-                                    callback({
-                                        value: false
-                                    });
-                                    db.close();
-                                } else if (created) {
-                                    callback({
-                                        value: true,
-                                        id: data._id
-                                    });
-                                    db.close();
-                                } else {
-                                    callback({
-                                        value: false,
-                                        comment: "Not created"
-                                    });
-                                    db.close();
-                                }
+                            callback({
+                                value: false,
+                                comment: "Not created"
                             });
+                            db.close();
                         }
                     });
                 } else {
                     var job = sails.ObjectID(data._id);
-                    delete data._id;
+                    delete data._id
                     db.collection('job').update({
                         _id: job
                     }, {
@@ -57,7 +43,8 @@ module.exports = {
                         if (err) {
                             console.log(err);
                             callback({
-                                value: false
+                                value: false,
+                                comment: "Error"
                             });
                             db.close();
                         } else if (updated.result.nModified != 0 && updated.result.n != 0) {
@@ -151,26 +138,7 @@ module.exports = {
             }
         });
     },
-    findAllJobs: function (data, callback) {
-        var newcallback = 0;
-        var newreturns = {};
-        newreturns.data = [];
-        var pagesize = data.pagesize;
-        var pagenumber = data.pagenumber;
-        var matchobj = {
-            designation: data.designation,
-            $or: [{
-                city: data.loc
-            }, {
-                state: data.loc
-            }]
-        };
-        if (data.loc == "") {
-            delete matchobj["$or"];
-        }
-        if (data.designation == "") {
-            delete matchobj.designation;
-        }
+    delete: function (data, callback) {
         sails.query(function (err, db) {
             if (err) {
                 console.log(err);
@@ -178,115 +146,29 @@ module.exports = {
                     value: false
                 });
             }
-            if (db) {
-                db.collection("job").count(matchobj, function (err, number) {
-                    if (number) {
-                        newreturns.total = number;
-                        newreturns.totalpages = Math.ceil(number / data.pagesize);
-                        callbackfunc1();
-                    } else if (err) {
-                        console.log(err);
-                        callback({
-                            value: false
-                        });
-                        db.close();
-                    } else {
-                        callback({
-                            value: false,
-                            comment: "Count of null"
-                        });
-                        db.close();
-                    }
-                });
-
-                function callbackfunc1() {
-                    db.collection("job").find(matchobj, {}).skip(pagesize * (pagenumber - 1)).limit(pagesize).toArray(function (err, found) {
-                        if (err) {
-                            callback({
-                                value: false
-                            });
-                            console.log(err);
-                            db.close();
-                        } else if (found && found[0]) {
-                            newreturns.data = found;
-                            callback(newreturns);
-                            db.close();
-                        } else {
-                            callback({
-                                value: false,
-                                comment: "No data found"
-                            });
-                            db.close();
-                        }
+            var cjob = db.collection('job').remove({
+                _id: sails.ObjectID(data._id)
+            }, function (err, deleted) {
+                if (deleted) {
+                    callback({
+                        value: true
                     });
-                }
-            }
-        });
-    },
-    findDrop: function (data, callback) {
-        if (data.search && data.job) {
-            var returns = [];
-            var exit = 0;
-            var exitup = 1;
-            var check = new RegExp(data.search, "i");
-
-            function callback2(exit, exitup, data) {
-                if (exit == exitup) {
-                    callback(data);
-                }
-            }
-            sails.query(function (err, db) {
-                if (err) {
+                    db.close();
+                } else if (err) {
                     console.log(err);
                     callback({
                         value: false
                     });
-
-                }
-                if (db) {
-                    db.collection("job").find({
-                        name: {
-                            '$regex': check
-                        },
-                    }).limit(10).toArray(function (err, found) {
-                        if (err) {
-                            callback({
-                                value: false
-                            });
-                            console.log(err);
-                            db.close();
-                        } else if (found != null) {
-                            exit++;
-                            if (data.job.length != 0) {
-                                var nedata;
-                                nedata = _.remove(found, function (n) {
-                                    var flag = false;
-                                    _.each(data.job, function (n1) {
-                                        if (n1.name == n.name) {
-                                            flag = true;
-                                        }
-                                    })
-                                    return flag;
-                                });
-                            }
-                            returns = returns.concat(found);
-                            callback2(exit, exitup, returns);
-                        } else {
-                            callback({
-                                value: false,
-                                comment: "No data found"
-                            });
-                            db.close();
-                        }
+                    db.close();
+                } else {
+                    callback({
+                        value: false,
+                        comment: "No data found"
                     });
+                    db.close();
                 }
             });
-        } else {
-            callback({
-                value: false,
-                comment: "Please provide parameters"
-            });
-        }
+        });
     },
     findone: function (data, callback) {
         sails.query(function (err, db) {
@@ -349,6 +231,164 @@ module.exports = {
                 });
             }
         });
+    },
+    findAllJobs: function (data, callback) {
+        var newcallback = 0;
+        var newreturns = {};
+        newreturns.data = [];
+        var pagesize = data.pagesize;
+        var pagenumber = data.pagenumber;
+        var matchobj = {
+            designation: data.designation,
+            $or: [{
+                city: data.loc
+            }, {
+                state: data.loc
+            }]
+        };
+        if (data.loc == "") {
+            delete matchobj["$or"];
+        }
+        if (data.designation == "") {
+            delete matchobj.designation;
+        }
+        sails.query(function (err, db) {
+            if (err) {
+                console.log(err);
+                callback({
+                    value: false
+                });
+            }
+            if (db) {
+                db.collection("job").count(matchobj, function (err, number) {
+                    if (number) {
+                        newreturns.total = number;
+                        newreturns.totalpages = Math.ceil(number / data.pagesize);
+                        callbackfunc1();
+                    } else if (err) {
+                        console.log(err);
+                        callback({
+                            value: false
+                        });
+                        db.close();
+                    } else {
+                        callback({
+                            value: false,
+                            comment: "Count of null"
+                        });
+                        db.close();
+                    }
+                });
+
+                function callbackfunc1() {
+                    db.collection("job").find(matchobj, {}).skip(pagesize * (pagenumber - 1)).limit(pagesize).toArray(function (err, found) {
+                        if (err) {
+                            callback({
+                                value: false
+                            });
+                            console.log(err);
+                            db.close();
+                        } else if (found && found[0]) {
+                            newreturns.data = found;
+                            var compData = [];
+                            var i = 0;
+                            _.each(newreturns.data, function (respo) {
+                                User.findCompanyProfile({ _id: respo._id }, function (compRespo) {
+                                    if (compRespo.value != false) {
+                                        compData.push(compRespo);
+                                        i++;
+                                        if (i == newreturns.data.length) {
+                                            newreturns.data = compData;
+                                            callback(newreturns);
+                                            db.close();
+                                        }
+                                    } else {
+                                        i++;
+                                        if (i == newreturns.data.length) {
+                                            newreturns.data = compData;
+                                            callback(newreturns);
+                                            db.close();
+                                        }
+                                    }
+                                });
+                            });
+                            db.close();
+                        } else {
+                            callback({
+                                value: false,
+                                comment: "No data found"
+                            });
+                            db.close();
+                        }
+                    });
+                }
+            }
+        });
+    },
+    findDrop: function (data, callback) {
+        if (data.search && data.job) {
+            var returns = [];
+            var exit = 0;
+            var exitup = 1;
+            var check = new RegExp(data.search, "i");
+
+            function callback2(exit, exitup, data) {
+                if (exit == exitup) {
+                    callback(data);
+                }
+            }
+            sails.query(function (err, db) {
+                if (err) {
+                    console.log(err);
+                    callback({
+                        value: false
+                    });
+
+                }
+                if (db) {
+                    db.collection("job").find({
+                        designation: {
+                            '$regex': check
+                        },
+                    }).limit(10).toArray(function (err, found) {
+                        if (err) {
+                            callback({
+                                value: false
+                            });
+                            console.log(err);
+                            db.close();
+                        } else if (found != null) {
+                            exit++;
+                            if (data.job.length != 0) {
+                                var nedata;
+                                nedata = _.remove(found, function (n) {
+                                    var flag = false;
+                                    _.each(data.job, function (n1) {
+                                        if (n1.name == n.name) {
+                                            flag = true;
+                                        }
+                                    })
+                                    return flag;
+                                });
+                            }
+                            returns = returns.concat(found);
+                            callback2(exit, exitup, returns);
+                        } else {
+                            callback({
+                                value: false,
+                                comment: "No data found"
+                            });
+                            db.close();
+                        }
+                    });
+                }
+            });
+        } else {
+            callback({
+                value: false,
+                comment: "Please provide parameters"
+            });
+        }
     },
     findCityDrop: function (data, callback) {
         var check = "";
@@ -444,36 +484,4 @@ module.exports = {
             }
         });
     },
-    delete: function (data, callback) {
-        sails.query(function (err, db) {
-            if (err) {
-                console.log(err);
-                callback({
-                    value: false
-                });
-            }
-            var cjob = db.collection('job').remove({
-                _id: sails.ObjectID(data._id)
-            }, function (err, deleted) {
-                if (deleted) {
-                    callback({
-                        value: true
-                    });
-                    db.close();
-                } else if (err) {
-                    console.log(err);
-                    callback({
-                        value: false
-                    });
-                    db.close();
-                } else {
-                    callback({
-                        value: false,
-                        comment: "No data found"
-                    });
-                    db.close();
-                }
-            });
-        });
-    }
 };

@@ -54,58 +54,12 @@ module.exports = {
             });
         }
     },
-    findDrop: function (req, res) {
-        if (req.body) {
-            if (req.body.job && Array.isArray(req.body.job)) {
-                var print = function (data) {
-                    res.json(data);
-                }
-                Job.findDrop(req.body, print);
-            } else {
-                res.json({
-                    value: false,
-                    comment: "Please provide parameters"
-                });
-            }
-        } else {
-            res.json({
-                value: false,
-                comment: "Please provide parameters"
-            });
-        }
-    },
     find: function (req, res) {
         if (req.body) {
             var print = function (data) {
                 res.json(data);
             }
             Job.find(req.body, print);
-        } else {
-            res.json({
-                value: false,
-                comment: "Please provide parameters"
-            });
-        }
-    },
-    findCityDrop: function (req, res) {
-        if (req.body) {
-            var print = function (data) {
-                res.json(data);
-            }
-            Job.findCityDrop(req.body, print);
-        } else {
-            res.json({
-                value: false,
-                comment: "Please provide parameters"
-            });
-        }
-    },
-    findTypeDrop: function (req, res) {
-        if (req.body) {
-            var print = function (data) {
-                res.json(data);
-            }
-            Job.findTypeDrop(req.body, print);
         } else {
             res.json({
                 value: false,
@@ -146,6 +100,52 @@ module.exports = {
                     comment: "Please provide parameters"
                 });
             }
+        } else {
+            res.json({
+                value: false,
+                comment: "Please provide parameters"
+            });
+        }
+    },
+    findDrop: function (req, res) {
+        if (req.body) {
+            if (req.body.job && Array.isArray(req.body.job)) {
+                var print = function (data) {
+                    res.json(data);
+                }
+                Job.findDrop(req.body, print);
+            } else {
+                res.json({
+                    value: false,
+                    comment: "Please provide parameters"
+                });
+            }
+        } else {
+            res.json({
+                value: false,
+                comment: "Please provide parameters"
+            });
+        }
+    },
+    findCityDrop: function (req, res) {
+        if (req.body) {
+            var print = function (data) {
+                res.json(data);
+            }
+            Job.findCityDrop(req.body, print);
+        } else {
+            res.json({
+                value: false,
+                comment: "Please provide parameters"
+            });
+        }
+    },
+    findTypeDrop: function (req, res) {
+        if (req.body) {
+            var print = function (data) {
+                res.json(data);
+            }
+            Job.findTypeDrop(req.body, print);
         } else {
             res.json({
                 value: false,

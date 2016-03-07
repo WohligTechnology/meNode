@@ -23,6 +23,7 @@ module.exports.bootstrap = function (cb) {
         sails.assert = require('assert'),
         sails.mime = require('mime'),
         sails.moment = require('moment'),
+        sails._ = require('lodash'),
         sails.fs = require('fs'),
         sails.md5 = require('MD5'),
         sails.lwip = require('lwip'),
