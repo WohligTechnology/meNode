@@ -34,6 +34,36 @@ module.exports = {
             });
         }
     },
+    saveJob: function (req, res) {
+        if (req.body) {
+            if (req.session.passport) {
+                req.body.user = req.session.passport.user.id;
+                var print = function (data) {
+                    if (data.value != false) {
+                        req.session.passport = {
+                            user: data
+                        };
+                        res.json({
+                            value: true
+                        });
+                    } else {
+                        res.json(data);
+                    }
+                }
+                Job.saveJob(req.body, print);
+            } else {
+                res.json({
+                    value: false,
+                    comment: "User not logged-in"
+                });
+            }
+        } else {
+            res.json({
+                value: false,
+                comment: "Please provide parameters"
+            });
+        }
+    },
     delete: function (req, res) {
         if (req.body) {
             if (req.body._id && req.body._id != "" && sails.ObjectID.isValid(req.body._id)) {
@@ -41,6 +71,26 @@ module.exports = {
                     res.json(data);
                 }
                 Job.delete(req.body, print);
+            } else {
+                res.json({
+                    value: false,
+                    comment: "Job-id is incorrect"
+                });
+            }
+        } else {
+            res.json({
+                value: false,
+                comment: "Please provide parameters"
+            });
+        }
+    },
+    deleteJob: function (req, res) {
+        if (req.body) {
+            if (req.body._id && req.body._id != "" && sails.ObjectID.isValid(req.body._id)) {
+                var print = function (data) {
+                    res.json(data);
+                }
+                Job.deleteJob(req.body, print);
             } else {
                 res.json({
                     value: false,

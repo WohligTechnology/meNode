@@ -4,7 +4,7 @@
  * @description :: Server-side logic for managing users
  * @help        :: See http://sailsjs.org/#!/documentation/concepts/Controllers
  */
-var frontend = "http://www.auraart.in/";
+var frontend = "http://192.168.0.123/me/#/search-category/";
 var passport = require('passport'),
     LinkedInStrategy = require('passport-linkedin-oauth2').Strategy,
     FacebookStrategy = require('passport-facebook').Strategy,
@@ -100,7 +100,7 @@ module.exports = {
         failureRedirect: '/user/fail'
     }),
     success: function (req, res, data) {
-        res.view("success");
+        res.redirect(frontend);
     },
     fail: function (req, res) {
         sails.sockets.blast("login", {
@@ -136,7 +136,8 @@ module.exports = {
                             user: data
                         };
                         res.json({
-                            value: true
+                            value: true,
+                            comment: "User registered"
                         });
                     } else {
                         res.json(data);
@@ -144,11 +145,10 @@ module.exports = {
                 }
                 User.save(req.body, print);
             } else {
-                callback({
+                res.json({
                     value: false,
                     comment: "Please provide parmeters"
                 });
-                db.close();
             }
         } else {
             res.json({
@@ -313,18 +313,18 @@ module.exports = {
     },
     findProfile: function (req, res) {
         if (req.body) {
-            // if (req.session.passport) {
-            //     req.body._id = req.session.passport.user.id;
-            var print = function (data) {
-                res.json(data);
+            if (req.session.passport) {
+                req.body._id = req.session.passport.user.id;
+                var print = function (data) {
+                    res.json(data);
+                }
+                User.findProfile(req.body, print);
+            } else {
+                res.json({
+                    value: false,
+                    comment: "User not logged-in"
+                });
             }
-            User.findProfile(req.body, print);
-            // } else {
-            //     res.json({
-            //         value: false,
-            //         comment: "User not logged-in"
-            //     });
-            // }
         } else {
             res.json({
                 value: false,
@@ -334,27 +334,27 @@ module.exports = {
     },
     edit: function (req, res) {
         if (req.body) {
-            // if (req.session.passport) {
-            //     req.body._id = req.session.passport.user.id;
-            var print = function (data) {
-                if (data.value != false) {
-                    // req.session.passport = {
-                    //     user: data
-                    // };
-                    res.json({
-                        value: true
-                    });
-                } else {
-                    res.json(data);
+            if (req.session.passport) {
+                req.body._id = req.session.passport.user.id;
+                var print = function (data) {
+                    if (data.value != false) {
+                        req.session.passport = {
+                            user: data
+                        };
+                        res.json({
+                            value: true
+                        });
+                    } else {
+                        res.json(data);
+                    }
                 }
+                User.edit(req.body, print);
+            } else {
+                res.json({
+                    value: false,
+                    comment: "User not logged-in"
+                });
             }
-            User.edit(req.body, print);
-            // } else {
-            //     res.json({
-            //         value: false,
-            //         comment: "User not logged-in"
-            //     });
-            // }
         } else {
             res.json({
                 value: false,
@@ -371,7 +371,8 @@ module.exports = {
                             user: data
                         };
                         res.json({
-                            value: true
+                            value: true,
+                            comment: "Login Successful"
                         });
                     } else {
                         res.json(data);
@@ -472,34 +473,6 @@ module.exports = {
             });
         }
     },
-    addJob: function (req, res) {
-        if (req.body) {
-            if (req.session.passport) {
-                req.body._id = req.session.passport.user.id;
-                if (req.body.job && req.body.job != "" && sails.ObjectID.isValid(req.body.job)) {
-                    var print = function (data) {
-                        res.json(data);
-                    }
-                    User.addJob(req.body, print);
-                } else {
-                    res.json({
-                        value: false,
-                        comment: "Job id is incorrect"
-                    });
-                }
-            } else {
-                res.json({
-                    value: false,
-                    comment: "User not logged in"
-                });
-            }
-        } else {
-            res.json({
-                value: false,
-                comment: "Please provide parameters"
-            });
-        }
-    },
     applyForJob: function (req, res) {
         if (req.body) {
             if (req.session.passport) {
@@ -528,4 +501,25 @@ module.exports = {
             });
         }
     },
+    jobApplied: function (req, res) {
+        if (req.body) {
+            if (req.session.passport) {
+                req.body._id = req.session.passport.user.id;
+                var print = function (data) {
+                    res.json(data);
+                }
+                User.jobApplied(req.body, print);
+            } else {
+                res.json({
+                    value: false,
+                    comment: "User not logged in"
+                });
+            }
+        } else {
+            res.json({
+                value: false,
+                comment: "Please provide parameters"
+            });
+        }
+    }
 };

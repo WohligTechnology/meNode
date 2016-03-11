@@ -1,5 +1,10 @@
 module.exports = {
     save: function (data, callback) {
+        if (data.applied && data.applied.length > 0) {
+            _.each(data.applied, function (change) {
+                change._id = sails.ObjectID(change._id);
+            });
+        }
         sails.query(function (err, db) {
             if (err) {
                 console.log(err);
@@ -62,6 +67,97 @@ module.exports = {
                             callback({
                                 value: false,
                                 comment: "No data found"
+                            });
+                            db.close();
+                        }
+                    });
+                }
+            }
+        });
+    },
+    saveJob: function (data, callback) {
+        if (data.applied && data.applied.length > 0) {
+            _.each(data.applied, function (change) {
+                change._id = sails.ObjectID(change._id);
+            });
+        }
+        sails.query(function (err, db) {
+            if (err) {
+                console.log(err);
+                callback({
+                    value: false
+                });
+            }
+            if (db) {
+                if (!data._id) {
+                    data._id = sails.ObjectID();
+                    var user = sails.ObjectID(data.user);
+                    delete data.user;
+                    db.collection('job').insert(data, function (err, created) {
+                        if (err) {
+                            console.log(err);
+                            callback({
+                                value: false,
+                                comment: "Error"
+                            });
+                            db.close();
+                        } else if (created) {
+                            User.findone({
+                                _id: sails.ObjectID(user)
+                            }, function (useRespo) {
+                                if (useRespo.value != false) {
+                                    if (useRespo.company) {
+                                        if (useRespo.company.job && useRespo.company.job.length > 0) {
+                                            useRespo.company.job.push({
+                                                _id: data._id
+                                            });
+                                            callMe();
+                                        } else {
+                                            useRespo.company.job = [];
+                                            useRespo.company.job.push({
+                                                _id: data._id
+                                            });
+                                            callMe();
+                                        }
+
+                                        function callMe() {
+                                            User.edit({
+                                                _id: sails.ObjectID(useRespo._id),
+                                                company: useRespo.company
+                                            }, function (saveRespo) {
+                                                if (saveRespo.value != false) {
+                                                    useRespo.id = useRespo._id;
+                                                    delete useRespo._id;
+                                                    callback(useRespo);
+                                                    db.close();
+                                                } else {
+                                                    callback({
+                                                        value: false,
+                                                        comment: "Error"
+                                                    });
+                                                    db.close();
+                                                }
+                                            });
+                                        }
+                                    } else {
+                                        callback({
+                                            value: false,
+                                            comment: "Company not found"
+                                        });
+                                        db.close();
+                                    }
+                                } else {
+                                    callback({
+                                        value: false,
+                                        comment: "User not found"
+                                    });
+                                    db.close();
+                                }
+                            });
+                        } else {
+                            callback({
+                                value: false,
+                                comment: "Not created"
                             });
                             db.close();
                         }
@@ -293,6 +389,7 @@ module.exports = {
                             var compData = [];
                             var i = 0;
                             _.each(newreturns.data, function (respo) {
+                                console.log(respo);
                                 User.findCompanyProfile({ _id: respo._id }, function (compRespo) {
                                     if (compRespo.value != false) {
                                         compData.push(compRespo);
@@ -312,7 +409,6 @@ module.exports = {
                                     }
                                 });
                             });
-                            db.close();
                         } else {
                             callback({
                                 value: false,
@@ -463,7 +559,7 @@ module.exports = {
                 }, {
                     _id: 1,
                     designation: 1
-                }).limit(10).toArray(function (err, data2) {
+                }).toArray(function (err, data2) {
                     if (err) {
                         console.log(err);
                         callback({
