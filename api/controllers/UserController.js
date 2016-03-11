@@ -4,7 +4,7 @@
  * @description :: Server-side logic for managing users
  * @help        :: See http://sailsjs.org/#!/documentation/concepts/Controllers
  */
-var frontend = "http://192.168.0.123/me/#/search-category/";
+var frontend = "http://wohlig.co.in/me/#/search-category/";
 var passport = require('passport'),
     LinkedInStrategy = require('passport-linkedin-oauth2').Strategy,
     FacebookStrategy = require('passport-facebook').Strategy,
