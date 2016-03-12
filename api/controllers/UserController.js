@@ -129,15 +129,14 @@ module.exports = {
     },
     save: function (req, res) {
         if (req.body) {
-            if (req.body.email && req.body.email != "" && req.body.password && req.body.password != "") {
+            if (req.body.email && req.body.email != "" && req.body.password && req.body.password != "" && req.body.accesslevel && req.body.accesslevel != "") {
                 var print = function (data) {
                     if (data.value != false) {
                         req.session.passport = {
                             user: data
                         };
                         res.json({
-                            value: true,
-                            comment: "User registered"
+                            value: true
                         });
                     } else {
                         res.json(data);
@@ -371,8 +370,7 @@ module.exports = {
                             user: data
                         };
                         res.json({
-                            value: true,
-                            comment: "Login Successful"
+                            value: true
                         });
                     } else {
                         res.json(data);

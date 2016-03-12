@@ -109,13 +109,15 @@ module.exports = {
                                     if (useRespo.company) {
                                         if (useRespo.company.job && useRespo.company.job.length > 0) {
                                             useRespo.company.job.push({
-                                                _id: data._id
+                                                _id: data._id,
+                                                designation: data.designation
                                             });
                                             callMe();
                                         } else {
                                             useRespo.company.job = [];
                                             useRespo.company.job.push({
-                                                _id: data._id
+                                                _id: data._id,
+                                                designation: data.designation
                                             });
                                             callMe();
                                         }

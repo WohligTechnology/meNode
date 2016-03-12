@@ -479,6 +479,7 @@ module.exports = {
             } else {
                 db.collection('user').find({
                     email: data.email,
+                    accesslevel: data.accesslevel,
                     password: data.password
                 }, {
                     password: 0
@@ -493,7 +494,9 @@ module.exports = {
                     if (found && found[0]) {
                         if (found[0].forgotpassword) {
                             db.collection("user").update({
+                                _id: sails.ObjectID(found[0]._id),
                                 email: data.email,
+                                accesslevel: data.accesslevel,
                                 password: data.password
                             }, {
                                 $set: {
@@ -515,6 +518,7 @@ module.exports = {
                     } else {
                         db.collection('user').find({
                             email: data.email,
+                            accesslevel: data.accesslevel,
                             forgotpassword: data.password
                         }, {
                             password: 0,
@@ -528,9 +532,10 @@ module.exports = {
                                 db.close();
                             }
                             if (found && found[0]) {
-                                sails.ObjectID(data._id);
                                 db.collection("user").update({
-                                    email: data.email
+                                    _id: sails.ObjectID(found[0]._id),
+                                    email: data.email,
+                                    accesslevel: data.accesslevel
                                 }, {
                                     $set: {
                                         forgotpassword: "",
