@@ -391,7 +391,6 @@ module.exports = {
                             var compData = [];
                             var i = 0;
                             _.each(newreturns.data, function (respo) {
-                                console.log(respo);
                                 User.findCompanyProfile({ _id: respo._id }, function (compRespo) {
                                     if (compRespo.value != false) {
                                         compData.push(compRespo);
