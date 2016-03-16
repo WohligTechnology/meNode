@@ -5,6 +5,7 @@
  * @help        :: See http://sailsjs.org/#!/documentation/concepts/Controllers
  */
 var frontend = "http://wohlig.co.in/me/#/search-category/";
+var frontend = "http://192.168.0.125/me/#/search-category/";
 var passport = require('passport'),
     LinkedInStrategy = require('passport-linkedin-oauth2').Strategy,
     FacebookStrategy = require('passport-facebook').Strategy,
@@ -118,7 +119,9 @@ module.exports = {
     },
     logout: function (req, res) {
         req.session.destroy(function (err) {
-            res.send(req.session);
+            res.send({
+                value: true
+            });
         });
     },
     findorcreate: function (req, res) {
@@ -363,7 +366,7 @@ module.exports = {
     },
     login: function (req, res) {
         if (req.body) {
-            if (req.body.email && req.body.email != "" && req.body.password && req.body.password != "") {
+            if (req.body.email && req.body.email != "" && req.body.password && req.body.password != "" && req.body.accesslevel && req.body.accesslevel != "") {
                 var print = function (data) {
                     if (data.value != false) {
                         req.session.passport = {
@@ -475,7 +478,7 @@ module.exports = {
         if (req.body) {
             if (req.session.passport) {
                 req.body._id = req.session.passport.user.id;
-                if (req.body.job && req.body.job != "" && sails.ObjectID.isValid(req.body.job)) {
+                if (req.body.job && req.body.job != "" && sails.ObjectID.isValid(req.body.job) && req.body.jobname && req.body.jobname != "") {
                     var print = function (data) {
                         res.json(data);
                     }
@@ -490,6 +493,46 @@ module.exports = {
                 res.json({
                     value: false,
                     comment: "User not logged in"
+                });
+            }
+        } else {
+            res.json({
+                value: false,
+                comment: "Please provide parameters"
+            });
+        }
+    },
+    shortlistForJob: function (req, res) {
+        if (req.body) {
+            if ((req.body.job && req.body.job != "" && sails.ObjectID.isValid(req.body.job)) || (req.body._id && req.body._id != "" && sails.ObjectID.isValid(req.body._id)) && req.body.jobname && req.body.jobname != "") {
+                var print = function (data) {
+                    res.json(data);
+                }
+                User.shortlistForJob(req.body, print);
+            } else {
+                res.json({
+                    value: false,
+                    comment: "Please provide parameters"
+                });
+            }
+        } else {
+            res.json({
+                value: false,
+                comment: "Please provide parameters"
+            });
+        }
+    },
+    setInterview: function (req, res) {
+        if (req.body) {
+            if ((req.body.job && req.body.job != "" && sails.ObjectID.isValid(req.body.job)) || (req.body._id && req.body._id != "" && sails.ObjectID.isValid(req.body._id)) && req.body.jobname && req.body.jobname != "") {
+                var print = function (data) {
+                    res.json(data);
+                }
+                User.setInterview(req.body, print);
+            } else {
+                res.json({
+                    value: false,
+                    comment: "Please provide parameters"
                 });
             }
         } else {
@@ -519,5 +562,107 @@ module.exports = {
                 comment: "Please provide parameters"
             });
         }
-    }
+    },
+    jobShortlisted: function (req, res) {
+        if (req.body) {
+            if (req.session.passport) {
+                req.body._id = req.session.passport.user.id;
+                var print = function (data) {
+                    res.json(data);
+                }
+                User.jobShortlisted(req.body, print);
+            } else {
+                res.json({
+                    value: false,
+                    comment: "User not logged in"
+                });
+            }
+        } else {
+            res.json({
+                value: false,
+                comment: "Please provide parameters"
+            });
+        }
+    },
+    jobInterviewed: function (req, res) {
+        if (req.body) {
+            if (req.session.passport) {
+                req.body._id = req.session.passport.user.id;
+                var print = function (data) {
+                    res.json(data);
+                }
+                User.jobInterviewed(req.body, print);
+            } else {
+                res.json({
+                    value: false,
+                    comment: "User not logged in"
+                });
+            }
+        } else {
+            res.json({
+                value: false,
+                comment: "Please provide parameters"
+            });
+        }
+    },
+    viewApplied: function (req, res) {
+        if (req.body) {
+            if (req.body.job && req.body.job != "" && sails.ObjectID.isValid(req.body.job)) {
+                var print = function (data) {
+                    res.json(data);
+                }
+                User.viewApplied(req.body, print);
+            } else {
+                res.json({
+                    value: false,
+                    comment: "Job id is incorrect"
+                });
+            }
+        } else {
+            res.json({
+                value: false,
+                comment: "Please provide parameters"
+            });
+        }
+    },
+    viewShortlisted: function (req, res) {
+        if (req.body) {
+            if (req.body.job && req.body.job != "" && sails.ObjectID.isValid(req.body.job)) {
+                var print = function (data) {
+                    res.json(data);
+                }
+                User.viewShortlisted(req.body, print);
+            } else {
+                res.json({
+                    value: false,
+                    comment: "Job id is incorrect"
+                });
+            }
+        } else {
+            res.json({
+                value: false,
+                comment: "Please provide parameters"
+            });
+        }
+    },
+    viewInterviewed: function (req, res) {
+        if (req.body) {
+            if (req.body.job && req.body.job != "" && sails.ObjectID.isValid(req.body.job)) {
+                var print = function (data) {
+                    res.json(data);
+                }
+                User.viewInterviewed(req.body, print);
+            } else {
+                res.json({
+                    value: false,
+                    comment: "Job id is incorrect"
+                });
+            }
+        } else {
+            res.json({
+                value: false,
+                comment: "Please provide parameters"
+            });
+        }
+    },
 };

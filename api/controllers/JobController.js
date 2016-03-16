@@ -222,5 +222,32 @@ module.exports = {
                 comment: "Please provide parameters"
             });
         }
+    },
+    test: function (req, res) {
+        if (req.body) {
+            if (req.body._id) {
+                if (req.body._id == 1) {
+                    res.json({
+                        value: true,
+                        data: [req.body]
+                    });
+                } else {
+                    res.json({
+                        value: false,
+                        data: [req.body]
+                    });
+                }
+            } else {
+                res.json({
+                    value: false,
+                    data: "Please provide _id"
+                });
+            }
+        } else {
+            res.json({
+                value: false,
+                data: "Please provide parameters"
+            });
+        }
     }
 };

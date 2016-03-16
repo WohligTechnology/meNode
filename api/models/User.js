@@ -165,7 +165,26 @@ module.exports = {
         if (!data.company) {
             data.company = {};
         }
-        data.company.job = [];
+        if (data.company && data.company.job && data.company.job.length > 0) {
+            _.each(data.company.job, function (r) {
+                r._id = sails.ObjectID(r._id);
+            });
+        }
+        if (data.applied && data.applied.length > 0) {
+            _.each(data.applied, function (r) {
+                r._id = sails.ObjectID(r._id);
+            });
+        }
+        if (data.shortlist && data.shortlist.length > 0) {
+            _.each(data.shortlist, function (r) {
+                r._id = sails.ObjectID(r._id);
+            });
+        }
+        if (data.setinterview && data.setinterview.length > 0) {
+            _.each(data.setinterview, function (r) {
+                r._id = sails.ObjectID(r._id);
+            });
+        }
         sails.query(function (err, db) {
             if (err) {
                 console.log(err);
@@ -174,6 +193,7 @@ module.exports = {
                 });
             } else if (db) {
                 if (!data._id) {
+                    data.company.job = [];
                     data.password = sails.md5(data.password);
                     db.collection("user").find({
                         email: data.email
@@ -263,7 +283,10 @@ module.exports = {
                 });
             }
             if (db) {
-                db.collection("user").find().toArray(function (err, found) {
+                db.collection("user").find({}, {
+                    password: 0,
+                    forgotpassword: 0
+                }).toArray(function (err, found) {
                     if (err) {
                         callback({
                             value: false
@@ -332,6 +355,9 @@ module.exports = {
                                 '$regex': check
                             },
                             accesslevel: data.accesslevel
+                        }, {
+                            password: 0,
+                            forgotpassword: 0
                         }).skip(pagesize * (pagenumber - 1)).limit(pagesize).toArray(function (err, found) {
                             if (err) {
                                 callback({
@@ -368,6 +394,9 @@ module.exports = {
             if (db) {
                 db.collection("user").find({
                     _id: sails.ObjectID(data._id)
+                }, {
+                    password: 0,
+                    forgotpassword: 0
                 }).toArray(function (err, data2) {
                     if (err) {
                         console.log(err);
@@ -733,6 +762,9 @@ module.exports = {
                         name: {
                             '$regex': check
                         },
+                    }, {
+                        forgotpassword: 0,
+                        password: 0
                     }).limit(10).toArray(function (err, found) {
                         if (err) {
                             callback({
@@ -782,7 +814,10 @@ module.exports = {
                 });
             }
             if (db) {
-                db.collection("user").find().toArray(function (err, found) {
+                db.collection("user").find({}, {
+                    forgotpassword: 0,
+                    password: 0
+                }).toArray(function (err, found) {
                     if (err) {
                         callback({
                             value: false
@@ -816,7 +851,10 @@ module.exports = {
                     company: {
                         $exists: true
                     }
-                }, {}).toArray(function (err, data2) {
+                }, {
+                    forgotpassword: 0,
+                    password: 0
+                }).toArray(function (err, data2) {
                     if (err) {
                         console.log(err);
                         callback({
@@ -873,6 +911,9 @@ module.exports = {
             if (db) {
                 db.collection("user").find({
                     _id: sails.ObjectID(data._id)
+                }, {
+                    forgotpassword: 0,
+                    password: 0
                 }).toArray(function (err, data2) {
                     if (err) {
                         console.log(err);
@@ -907,6 +948,16 @@ module.exports = {
                 r._id = sails.ObjectID(r._id);
             });
         }
+        if (data.shortlist && data.shortlist.length > 0) {
+            _.each(data.shortlist, function (r) {
+                r._id = sails.ObjectID(r._id);
+            });
+        }
+        if (data.setinterview && data.setinterview.length > 0) {
+            _.each(data.setinterview, function (r) {
+                r._id = sails.ObjectID(r._id);
+            });
+        }
         sails.query(function (err, db) {
             if (err) {
                 console.log(err);
@@ -931,6 +982,8 @@ module.exports = {
                     } else if (updated) {
                         data.id = data._id;
                         delete data._id;
+                        delete data.password;
+                        delete data.forgotpassword;
                         callback(data);
                         db.close();
                     } else {
@@ -996,55 +1049,10 @@ module.exports = {
                     });
                     if (index == -1) {
                         useRespo.applied.push({
-                            _id: sails.ObjectID(data.job)
+                            _id: sails.ObjectID(data.job),
+                            designation: data.jobname
                         });
-                        Job.findone({ _id: data.job }, function (jobRespo) {
-                            if (jobRespo.value != false) {
-                                if (jobRespo.applied && jobRespo.applied.length > 0) {
-                                    var jobindex = sails._.findIndex(jobRespo.applied, function (j) {
-                                        return j._id == data._id;
-                                    });
-                                    if (jobindex == -1) {
-                                        jobRespo.applied.push({
-                                            _id: sails.ObjectID(applied._id)
-                                        });
-                                        callJob();
-                                    } else {
-                                        callback({
-                                            value: false,
-                                            comment: "Already applied for job"
-                                        });
-                                    }
-                                } else {
-                                    jobRespo.applied = [];
-                                    jobRespo.applied.push({
-                                        _id: sails.ObjectID(jobRespo.applied._id)
-                                    });
-                                    callJob();
-                                }
-
-                                function callJob() {
-                                    Job.save({
-                                        _id: jobRespo._id,
-                                        applied: jobRespo.applied
-                                    }, function (saveRespo) {
-                                        if (saveRespo.value != false) {
-                                            callEdit(useRespo);
-                                        } else {
-                                            callback({
-                                                value: false,
-                                                comment: "Some Error"
-                                            });
-                                        }
-                                    });
-                                }
-                            } else {
-                                callback({
-                                    value: false,
-                                    comment: "Job not found"
-                                });
-                            }
-                        });
+                        callEdit(useRespo);
                     } else {
                         callback({
                             value: false,
@@ -1054,55 +1062,10 @@ module.exports = {
                 } else {
                     useRespo.applied = [];
                     useRespo.applied.push({
-                        _id: sails.ObjectID(data.job)
+                        _id: sails.ObjectID(data.job),
+                        designation: data.jobname
                     });
-                    Job.findone({ _id: data.job }, function (jobRespo) {
-                        if (jobRespo.value != false) {
-                            if (jobRespo.applied && jobRespo.applied.length > 0) {
-                                var jobindex = sails._.findIndex(jobRespo.applied, function (j) {
-                                    return j._id == data._id;
-                                });
-                                if (jobindex == -1) {
-                                    jobRespo.applied.push({
-                                        _id: sails.ObjectID(applied._id)
-                                    });
-                                    callJob();
-                                } else {
-                                    callback({
-                                        value: false,
-                                        comment: "Already applied for job"
-                                    });
-                                }
-                            } else {
-                                jobRespo.applied = [];
-                                jobRespo.applied.push({
-                                    _id: sails.ObjectID(jobRespo.applied._id)
-                                });
-                                callJob();
-                            }
-
-                            function callJob() {
-                                Job.save({
-                                    _id: jobRespo._id,
-                                    applied: jobRespo.applied
-                                }, function (saveRespo) {
-                                    if (saveRespo.value != false) {
-                                        callEdit(useRespo);
-                                    } else {
-                                        callback({
-                                            value: false,
-                                            comment: "Some Error"
-                                        });
-                                    }
-                                });
-                            }
-                        } else {
-                            callback({
-                                value: false,
-                                comment: "Job not found"
-                            });
-                        }
-                    });
+                    callEdit(useRespo);
                 }
 
                 function callEdit(compRespo) {
@@ -1123,7 +1086,115 @@ module.exports = {
             } else {
                 callback({
                     value: false,
-                    comment: "No data found"
+                    comment: "User not found"
+                });
+            }
+        });
+    },
+    shortlistForJob: function (data, callback) {
+        User.findone(data, function (useRespo) {
+            if (useRespo.value != false) {
+                if (useRespo.shortlist && useRespo.shortlist.length > 0) {
+                    var index = sails._.findIndex(useRespo.shortlist, function (o) {
+                        return o._id == data.job;
+                    });
+                    if (index == -1) {
+                        useRespo.shortlist.push({
+                            _id: sails.ObjectID(data.job),
+                            designation: data.jobname
+                        });
+                        callEdit(useRespo);
+                    } else {
+                        callback({
+                            value: false,
+                            comment: "Already shortlisted for job"
+                        });
+                    }
+                } else {
+                    useRespo.shortlist = [];
+                    useRespo.shortlist.push({
+                        _id: sails.ObjectID(data.job),
+                        designation: data.jobname
+                    });
+                    callEdit(useRespo);
+                }
+
+                function callEdit(compRespo) {
+                    User.edit({ _id: data._id, shortlist: compRespo.shortlist }, function (editRespo) {
+                        if (editRespo.value != false) {
+                            callback({
+                                value: true,
+                                comment: "Job inserted in User"
+                            });
+                        } else {
+                            callback({
+                                value: false,
+                                comment: "No data found"
+                            });
+                        }
+                    });
+                }
+            } else {
+                callback({
+                    value: false,
+                    comment: "User not found"
+                });
+            }
+        });
+    },
+    setInterview: function (data, callback) {
+        User.findone(data, function (useRespo) {
+            if (useRespo.value != false) {
+                if (useRespo.setinterview && useRespo.setinterview.length > 0) {
+                    var index = sails._.findIndex(useRespo.setinterview, function (o) {
+                        return o._id == data.job;
+                    });
+                    if (index == -1) {
+                        useRespo.setinterview.push({
+                            _id: sails.ObjectID(data.job),
+                            designation: data.jobname,
+                            time: data.time,
+                            location: data.location,
+                            content: data.content
+                        });
+                        callEdit(useRespo);
+                    } else {
+                        callback({
+                            value: false,
+                            comment: "Already set interview"
+                        });
+                    }
+                } else {
+                    useRespo.setinterview = [];
+                    useRespo.setinterview.push({
+                        _id: sails.ObjectID(data.job),
+                        designation: data.jobname,
+                        time: data.time,
+                        location: data.location,
+                        content: data.content
+                    });
+                    callEdit(useRespo);
+                }
+
+                function callEdit(compRespo) {
+                    User.edit({ _id: data._id, setinterview: compRespo.setinterview }, function (editRespo) {
+                        if (editRespo.value != false) {
+                            callback({
+                                value: true,
+                                comment: "Job inserted in User"
+                            });
+                        } else {
+                            callback({
+                                value: false,
+                                comment: "No data found"
+                            });
+                        }
+                    });
+                }
+            } else {
+                callback({
+                    value: false,
+                    comment: "User not found"
                 });
             }
         });
@@ -1188,44 +1259,266 @@ module.exports = {
             }
         });
     },
-    viewApplied: function (data, callback) {
-        Job.findone({
-            _id: sails.ObjectID(data.job)
-        }, function (respo) {
-            if (respo.value != false) {
-                if (respo.applied && respo.applied.length > 0) {
-                    var userData = [];
-                    var i = 0;
-                    _.each(respo.applied, function (abc) {
-                        User.findone({
-                            _id: abc._id
-                        }, function (findRespo) {
-                            if (findRespo.value != false) {
-                                abc.push(findRespo);
-                                i++;
-                                if (i == respo.applied.length) {
-                                    callback(abc);
-                                    db.close();
-                                }
-                            } else {
-                                i++;
-                                if (i == respo.applied.length) {
-                                    callback(abc);
-                                    db.close();
-                                }
-                            }
-                        });
-                    });
-                } else {
-                    callback({
-                        value: false,
-                        comment: "No data found"
-                    });
-                }
+    jobShortlisted: function (data, callback) {
+        sails.query(function (err, db) {
+            if (err) {
+                console.log(err);
+                callback({
+                    vallue: false,
+                    comment: "Error"
+                });
             } else {
+                User.findone(data, function (useRespo) {
+                    if (useRespo.value != false) {
+                        if (useRespo.shortlist && useRespo.shortlist.length > 0) {
+                            var compData = [];
+                            var i = 0;
+                            _.each(useRespo.shortlist, function (respo) {
+                                User.findCompanyProfile({ _id: respo._id }, function (compRespo) {
+                                    if (compRespo.value != false) {
+                                        Job.findone({
+                                            _id: sails.ObjectID(compRespo.company.job._id)
+                                        }, function (jobRes) {
+                                            if (jobRes.value != false) {
+                                                compRespo.company.job = jobRes;
+                                                compData.push(compRespo);
+                                                i++;
+                                                if (i == useRespo.shortlist.length) {
+                                                    callback(compData);
+                                                    db.close();
+                                                }
+                                            } else {
+                                                i++;
+                                                if (i == useRespo.shortlist.length) {
+                                                    callback(compData);
+                                                    db.close();
+                                                }
+                                            }
+                                        });
+                                    } else {
+                                        i++;
+                                        if (i == useRespo.shortlist.length) {
+                                            callback(compData);
+                                            db.close();
+                                        }
+                                    }
+                                });
+                            });
+                        } else {
+                            callback([]);
+                            db.close();
+                        }
+                    } else {
+                        callback({
+                            value: false,
+                            comment: "No data found"
+                        });
+                        db.close();
+                    }
+                });
+            }
+        });
+    },
+    jobInterviewed: function (data, callback) {
+        sails.query(function (err, db) {
+            if (err) {
+                console.log(err);
+                callback({
+                    vallue: false,
+                    comment: "Error"
+                });
+            } else {
+                User.findone(data, function (useRespo) {
+                    if (useRespo.value != false) {
+                        if (useRespo.setinterview && useRespo.setinterview.length > 0) {
+                            var compData = [];
+                            var i = 0;
+                            _.each(useRespo.setinterview, function (respo) {
+                                User.findCompanyProfile({ _id: respo._id }, function (compRespo) {
+                                    if (compRespo.value != false) {
+                                        Job.findone({
+                                            _id: sails.ObjectID(compRespo.company.job._id)
+                                        }, function (jobRes) {
+                                            if (jobRes.value != false) {
+                                                compRespo.company.job = jobRes;
+                                                compData.push(compRespo);
+                                                i++;
+                                                if (i == useRespo.setinterview.length) {
+                                                    callback(compData);
+                                                    db.close();
+                                                }
+                                            } else {
+                                                i++;
+                                                if (i == useRespo.setinterview.length) {
+                                                    callback(compData);
+                                                    db.close();
+                                                }
+                                            }
+                                        });
+                                    } else {
+                                        i++;
+                                        if (i == useRespo.setinterview.length) {
+                                            callback(compData);
+                                            db.close();
+                                        }
+                                    }
+                                });
+                            });
+                        } else {
+                            callback([]);
+                            db.close();
+                        }
+                    } else {
+                        callback({
+                            value: false,
+                            comment: "No data found"
+                        });
+                        db.close();
+                    }
+                });
+            }
+        });
+    },
+    viewApplied: function (data, callback) {
+        sails.query(function (err, db) {
+            if (err) {
+                console.log(err);
                 callback({
                     value: false,
-                    comment: "No data found"
+                    comment: "Error"
+                });
+            } else {
+                db.collection('user').aggregate([{
+                    $match: {
+                        accesslevel: "lancer",
+                        applied: {
+                            $exists: true
+                        }
+                    }
+                }, {
+                    $unwind: "$applied"
+                }, {
+                    $match: {
+                        "applied._id": sails.ObjectID(data.job)
+                    }
+                }]).toArray(function (err, data2) {
+                    if (err) {
+                        console.log(err);
+                        callback({
+                            value: false,
+                            comment: "Error"
+                        });
+                        db.close();
+                    } else if (data2 && data2.length > 0) {
+                        _.each(data2, function (user) {
+                            delete user.password;
+                            delete user.forgotpassword;
+                        });
+                        callback(data2);
+                        db.close();
+                    } else {
+                        callback({
+                            value: false,
+                            comment: "No data found"
+                        });
+                        db.close();
+                    }
+                });
+            }
+        });
+    },
+    viewShortlisted: function (data, callback) {
+        sails.query(function (err, db) {
+            if (err) {
+                console.log(err);
+                callback({
+                    value: false,
+                    comment: "Error"
+                });
+            } else {
+                db.collection('user').aggregate([{
+                    $match: {
+                        accesslevel: "lancer",
+                        shortlist: {
+                            $exists: true
+                        }
+                    }
+                }, {
+                    $unwind: "$shortlist"
+                }, {
+                    $match: {
+                        "shortlist._id": sails.ObjectID(data.job)
+                    }
+                }]).toArray(function (err, data2) {
+                    if (err) {
+                        console.log(err);
+                        callback({
+                            value: false,
+                            comment: "Error"
+                        });
+                        db.close();
+                    } else if (data2 && data2.length > 0) {
+                        _.each(data2, function (user) {
+                            delete user.password;
+                            delete user.forgotpassword;
+                        });
+                        callback(data2);
+                        db.close();
+                    } else {
+                        callback({
+                            value: false,
+                            comment: "No data found"
+                        });
+                        db.close();
+                    }
+                });
+            }
+        });
+    },
+    viewInterviewed: function (data, callback) {
+        sails.query(function (err, db) {
+            if (err) {
+                console.log(err);
+                callback({
+                    value: false,
+                    comment: "Error"
+                });
+            } else {
+                db.collection('user').aggregate([{
+                    $match: {
+                        accesslevel: "lancer",
+                        setinterview: {
+                            $exists: true
+                        }
+                    }
+                }, {
+                    $unwind: "$setinterview"
+                }, {
+                    $match: {
+                        "setinterview._id": sails.ObjectID(data.job)
+                    }
+                }]).toArray(function (err, data2) {
+                    if (err) {
+                        console.log(err);
+                        callback({
+                            value: false,
+                            comment: "Error"
+                        });
+                        db.close();
+                    } else if (data2 && data2.length > 0) {
+                        _.each(data2, function (user) {
+                            delete user.password;
+                            delete user.forgotpassword;
+                        });
+                        callback(data2);
+                        db.close();
+                    } else {
+                        callback({
+                            value: false,
+                            comment: "No data found"
+                        });
+                        db.close();
+                    }
                 });
             }
         });

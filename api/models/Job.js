@@ -1,10 +1,5 @@
 module.exports = {
     save: function (data, callback) {
-        if (data.applied && data.applied.length > 0) {
-            _.each(data.applied, function (change) {
-                change._id = sails.ObjectID(change._id);
-            });
-        }
         sails.query(function (err, db) {
             if (err) {
                 console.log(err);
@@ -14,6 +9,7 @@ module.exports = {
             }
             if (db) {
                 if (!data._id) {
+                    data.timestamp = new Date(data.timestamp);
                     data._id = sails.ObjectID();
                     db.collection('job').insert(data, function (err, created) {
                         if (err) {
@@ -76,11 +72,6 @@ module.exports = {
         });
     },
     saveJob: function (data, callback) {
-        if (data.applied && data.applied.length > 0) {
-            _.each(data.applied, function (change) {
-                change._id = sails.ObjectID(change._id);
-            });
-        }
         sails.query(function (err, db) {
             if (err) {
                 console.log(err);
@@ -393,6 +384,7 @@ module.exports = {
                             _.each(newreturns.data, function (respo) {
                                 User.findCompanyProfile({ _id: respo._id }, function (compRespo) {
                                     if (compRespo.value != false) {
+                                        compRespo.company.job = respo;
                                         compData.push(compRespo);
                                         i++;
                                         if (i == newreturns.data.length) {

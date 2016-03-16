@@ -14,7 +14,7 @@
  * It's important to realize that, even if you haven't defined these yourself, as long as
  * a model exists with the same name as the controller, Sails will respond with built-in CRUD
  * logic in the form of a JSON API, including support for sort, pagination, and filtering.
- *dfghjkl`12
+ *
  * For more information on the blueprint API, check out:
  * http://sailsjs.org/#!/documentation/reference/blueprint-api
  *
