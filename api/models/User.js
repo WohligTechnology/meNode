@@ -899,6 +899,58 @@ module.exports = {
             }
         });
     },
+    viewCompanyProfile: function (data, callback) {
+        sails.query(function (err, db) {
+            if (err) {
+                console.log(err);
+                callback({
+                    value: false
+                });
+            }
+            if (db) {
+                db.collection("user").find({
+                    _id: sails.ObjectID(data._id),
+                    company: {
+                        $exists: true
+                    }
+                }, {
+                    forgotpassword: 0,
+                    password: 0
+                }).toArray(function (err, data2) {
+                    if (err) {
+                        console.log(err);
+                        callback({
+                            value: false
+                        });
+                        db.close();
+                    } else if (data2 && data2[0]) {
+                        if (data2[0].company.job && data2[0].company.job.length > 0) {
+                            Job.findone({
+                                _id: data.job
+                            }, function (jobRespo) {
+                                if (jobRespo.value != false) {
+                                    data2[0].company.job = jobRespo;
+                                    callback(data2[0]);
+                                    db.close();
+                                } else {
+                                    callback(data2[0]);
+                                    db.close();
+                                }
+                            });
+                        } else {
+                            callback(data2[0]);
+                        }
+                    } else {
+                        callback({
+                            value: false,
+                            comment: "No data found"
+                        });
+                        db.close();
+                    }
+                });
+            }
+        });
+    },
     //id to be changed
     findProfile: function (data, callback) {
         sails.query(function (err, db) {

@@ -434,6 +434,26 @@ module.exports = {
             });
         }
     },
+    viewCompanyProfile: function (req, res) {
+        if (req.body) {
+            if (req.body._id && req.body._id != "" && sails.ObjectID.isValid(req.body._id) && req.body.job && req.body.job != "" && sails.ObjectID.isValid(req.body.job)) {
+                var print = function (data) {
+                    res.json(data);
+                }
+                User.viewCompanyProfile(req.body, print);
+            } else {
+                res.json({
+                    value: false,
+                    comment: "User or Job id is incorrect"
+                });
+            }
+        } else {
+            res.json({
+                value: false,
+                comment: "Please provide parameters"
+            });
+        }
+    },
     findDrop: function (req, res) {
         if (req.body) {
             if (req.body.user && Array.isArray(req.body.user)) {
