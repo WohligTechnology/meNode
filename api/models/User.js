@@ -1,5 +1,5 @@
 module.exports = {
-    findorcreate: function (data, callback) {
+    findorcreate: function(data, callback) {
         var orfunc = {};
         var insertdata = {};
         insertdata.accesslevel = "lancer";
@@ -47,14 +47,14 @@ module.exports = {
         }
 
         function dbcall(data) {
-            sails.query(function (err, db) {
+            sails.query(function(err, db) {
                 if (err) {
                     callback({
                         value: false
                     });
                 }
                 data._id = sails.ObjectID();
-                db.collection('user').find(orfunc).toArray(function (err, found) {
+                db.collection('user').find(orfunc).toArray(function(err, found) {
                     if (err) {
                         console.log(err);
                         callback({
@@ -70,7 +70,7 @@ module.exports = {
                         callback(null, data2);
                         db.close();
                     } else {
-                        db.collection('user').insert(data, function (err, created) {
+                        db.collection('user').insert(data, function(err, created) {
                             if (err) {
                                 console.log(err);
                                 callback({
@@ -97,13 +97,13 @@ module.exports = {
             });
         }
     },
-    save: function (data, callback) {
+    save: function(data, callback) {
         if (data.email && data.email != "wohlig@wohlig.com") {
             if (!data.company) {
                 data.company = {};
             }
             data.company.job = [];
-            sails.query(function (err, db) {
+            sails.query(function(err, db) {
                 if (err) {
                     console.log(err);
                     callback({
@@ -113,7 +113,7 @@ module.exports = {
                     data.password = sails.md5(data.password);
                     db.collection("user").find({
                         email: data.email
-                    }).toArray(function (err, data2) {
+                    }).toArray(function(err, data2) {
                         if (err) {
                             console.log(err);
                             callback({
@@ -128,7 +128,7 @@ module.exports = {
                             });
                             db.close();
                         } else {
-                            db.collection('user').insert(data, function (err, created) {
+                            db.collection('user').insert(data, function(err, created) {
                                 if (err) {
                                     console.log(err);
                                     callback({
@@ -161,31 +161,31 @@ module.exports = {
             });
         }
     },
-    saveBack: function (data, callback) {
+    saveBack: function(data, callback) {
         if (!data.company) {
             data.company = {};
         }
         if (data.company && data.company.job && data.company.job.length > 0) {
-            _.each(data.company.job, function (r) {
+            _.each(data.company.job, function(r) {
                 r._id = sails.ObjectID(r._id);
             });
         }
         if (data.applied && data.applied.length > 0) {
-            _.each(data.applied, function (r) {
+            _.each(data.applied, function(r) {
                 r._id = sails.ObjectID(r._id);
             });
         }
         if (data.shortlist && data.shortlist.length > 0) {
-            _.each(data.shortlist, function (r) {
+            _.each(data.shortlist, function(r) {
                 r._id = sails.ObjectID(r._id);
             });
         }
         if (data.setinterview && data.setinterview.length > 0) {
-            _.each(data.setinterview, function (r) {
+            _.each(data.setinterview, function(r) {
                 r._id = sails.ObjectID(r._id);
             });
         }
-        sails.query(function (err, db) {
+        sails.query(function(err, db) {
             if (err) {
                 console.log(err);
                 callback({
@@ -197,7 +197,7 @@ module.exports = {
                     data.password = sails.md5(data.password);
                     db.collection("user").find({
                         email: data.email
-                    }).toArray(function (err, data2) {
+                    }).toArray(function(err, data2) {
                         if (err) {
                             console.log(err);
                             callback({
@@ -212,7 +212,7 @@ module.exports = {
                             });
                             db.close();
                         } else {
-                            db.collection('user').insert(data, function (err, created) {
+                            db.collection('user').insert(data, function(err, created) {
                                 if (err) {
                                     console.log(err);
                                     callback({
@@ -243,7 +243,7 @@ module.exports = {
                         _id: user
                     }, {
                         $set: data
-                    }, function (err, updated) {
+                    }, function(err, updated) {
                         if (err) {
                             console.log(err);
                             callback({
@@ -274,8 +274,8 @@ module.exports = {
             }
         });
     },
-    find: function (data, callback) {
-        sails.query(function (err, db) {
+    find: function(data, callback) {
+        sails.query(function(err, db) {
             if (err) {
                 console.log(err);
                 callback({
@@ -286,7 +286,7 @@ module.exports = {
                 db.collection("user").find({}, {
                     password: 0,
                     forgotpassword: 0
-                }).toArray(function (err, found) {
+                }).toArray(function(err, found) {
                     if (err) {
                         callback({
                             value: false
@@ -307,13 +307,13 @@ module.exports = {
         });
     },
     //Findlimited
-    findlimited: function (data, callback) {
+    findlimited: function(data, callback) {
         var newreturns = {};
         newreturns.data = [];
         var check = new RegExp(data.search, "i");
         var pagesize = parseInt(data.pagesize);
         var pagenumber = parseInt(data.pagenumber);
-        sails.query(function (err, db) {
+        sails.query(function(err, db) {
             if (err) {
                 console.log(err);
                 callback({
@@ -329,7 +329,7 @@ module.exports = {
                             '$regex': check
                         },
                         accesslevel: data.accesslevel
-                    }, function (err, number) {
+                    }, function(err, number) {
                         if (number && number != "") {
                             newreturns.total = number;
                             newreturns.totalpages = Math.ceil(number / data.pagesize);
@@ -358,7 +358,7 @@ module.exports = {
                         }, {
                             password: 0,
                             forgotpassword: 0
-                        }).skip(pagesize * (pagenumber - 1)).limit(pagesize).toArray(function (err, found) {
+                        }).skip(pagesize * (pagenumber - 1)).limit(pagesize).toArray(function(err, found) {
                             if (err) {
                                 callback({
                                     value: false
@@ -383,8 +383,8 @@ module.exports = {
         });
     },
     //Findlimited
-    findone: function (data, callback) {
-        sails.query(function (err, db) {
+    findone: function(data, callback) {
+        sails.query(function(err, db) {
             if (err) {
                 console.log(err);
                 callback({
@@ -397,7 +397,7 @@ module.exports = {
                 }, {
                     password: 0,
                     forgotpassword: 0
-                }).toArray(function (err, data2) {
+                }).toArray(function(err, data2) {
                     if (err) {
                         console.log(err);
                         callback({
@@ -420,8 +420,8 @@ module.exports = {
             }
         });
     },
-    delete: function (data, callback) {
-        sails.query(function (err, db) {
+    delete: function(data, callback) {
+        sails.query(function(err, db) {
             if (err) {
                 console.log(err);
                 callback({
@@ -430,7 +430,7 @@ module.exports = {
             }
             db.collection('user').remove({
                 _id: sails.ObjectID(data._id)
-            }, function (err, deleted) {
+            }, function(err, deleted) {
                 if (deleted) {
                     callback({
                         value: true
@@ -452,10 +452,10 @@ module.exports = {
             });
         });
     },
-    adminlogin: function (data, callback) {
+    adminlogin: function(data, callback) {
         if (data.password) {
             data.password = sails.md5(data.password);
-            sails.query(function (err, db) {
+            sails.query(function(err, db) {
                 if (db) {
                     db.collection('user').find({
                         email: data.email,
@@ -464,7 +464,7 @@ module.exports = {
                     }, {
                         password: 0,
                         forgotpassword: 0
-                    }).toArray(function (err, found) {
+                    }).toArray(function(err, found) {
                         if (err) {
                             callback({
                                 value: false
@@ -496,9 +496,9 @@ module.exports = {
             });
         }
     },
-    login: function (data, callback) {
+    login: function(data, callback) {
         data.password = sails.md5(data.password);
-        sails.query(function (err, db) {
+        sails.query(function(err, db) {
             if (err) {
                 console.log(err);
                 callback({
@@ -512,7 +512,7 @@ module.exports = {
                     password: data.password
                 }, {
                     password: 0
-                }).toArray(function (err, found) {
+                }).toArray(function(err, found) {
                     if (err) {
                         callback({
                             value: false
@@ -531,7 +531,7 @@ module.exports = {
                                 $set: {
                                     forgotpassword: ""
                                 }
-                            }, function (err, updated) {
+                            }, function(err, updated) {
                                 if (err) {
                                     console.log(err);
                                     db.close();
@@ -552,7 +552,7 @@ module.exports = {
                         }, {
                             password: 0,
                             forgotpassword: 0
-                        }).toArray(function (err, found) {
+                        }).toArray(function(err, found) {
                             if (err) {
                                 callback({
                                     value: false
@@ -570,7 +570,7 @@ module.exports = {
                                         forgotpassword: "",
                                         password: data.password
                                     }
-                                }, function (err, updated) {
+                                }, function(err, updated) {
                                     if (err) {
                                         console.log(err);
                                         db.close();
@@ -593,12 +593,12 @@ module.exports = {
             }
         });
     },
-    changepassword: function (data, callback) {
+    changepassword: function(data, callback) {
         if (data.password && data.password != "" && data.editpassword && data.editpassword != "") {
             var oldpass = sails.md5(data.password);
             var user = sails.ObjectID(data._id);
             var newpass = sails.md5(data.editpassword);
-            sails.query(function (err, db) {
+            sails.query(function(err, db) {
                 if (err) {
                     console.log(err);
                     callback({
@@ -613,7 +613,7 @@ module.exports = {
                         $set: {
                             "password": newpass
                         }
-                    }, function (err, updated) {
+                    }, function(err, updated) {
                         if (err) {
                             console.log(err);
                             callback({
@@ -649,8 +649,8 @@ module.exports = {
             });
         }
     },
-    forgotpassword: function (data, callback) {
-        sails.query(function (err, db) {
+    forgotpassword: function(data, callback) {
+        sails.query(function(err, db) {
             if (err) {
                 console.log(err);
                 callback({
@@ -660,7 +660,7 @@ module.exports = {
             if (db) {
                 db.collection('user').find({
                     email: data.email
-                }).toArray(function (err, data2) {
+                }).toArray(function(err, data2) {
                     if (err) {
                         console.log(err);
                         callback({
@@ -681,7 +681,7 @@ module.exports = {
                             $set: {
                                 forgotpassword: encrypttext
                             }
-                        }, function (err, updated) {
+                        }, function(err, updated) {
                             if (err) {
                                 console.log(err);
                                 callback({
@@ -710,13 +710,13 @@ module.exports = {
                                     "template_name": template_name,
                                     "template_content": template_content,
                                     "message": message
-                                }, function (result) {
+                                }, function(result) {
                                     callback({
                                         value: true,
                                         comment: "Mail Sent"
                                     });
                                     db.close();
-                                }, function (e) {
+                                }, function(e) {
                                     console.log('A mandrill error occurred: ' + e.name + ' - ' + e.message);
                                 });
                             } else {
@@ -737,7 +737,7 @@ module.exports = {
             }
         });
     },
-    findDrop: function (data, callback) {
+    findDrop: function(data, callback) {
         if (data.search && data.user) {
             var returns = [];
             var exit = 0;
@@ -749,7 +749,7 @@ module.exports = {
                     callback(data);
                 }
             }
-            sails.query(function (err, db) {
+            sails.query(function(err, db) {
                 if (err) {
                     console.log(err);
                     callback({
@@ -765,7 +765,7 @@ module.exports = {
                     }, {
                         forgotpassword: 0,
                         password: 0
-                    }).limit(10).toArray(function (err, found) {
+                    }).limit(10).toArray(function(err, found) {
                         if (err) {
                             callback({
                                 value: false
@@ -776,9 +776,9 @@ module.exports = {
                             exit++;
                             if (data.user.length != 0) {
                                 var nedata;
-                                nedata = _.remove(found, function (n) {
+                                nedata = _.remove(found, function(n) {
                                     var flag = false;
-                                    _.each(data.user, function (n1) {
+                                    _.each(data.user, function(n1) {
                                         if (n1.name == n.name) {
                                             flag = true;
                                         }
@@ -805,8 +805,8 @@ module.exports = {
             });
         }
     },
-    findAll: function (data, callback) {
-        sails.query(function (err, db) {
+    findAll: function(data, callback) {
+        sails.query(function(err, db) {
             if (err) {
                 console.log(err);
                 callback({
@@ -817,7 +817,7 @@ module.exports = {
                 db.collection("user").find({}, {
                     forgotpassword: 0,
                     password: 0
-                }).toArray(function (err, found) {
+                }).toArray(function(err, found) {
                     if (err) {
                         callback({
                             value: false
@@ -837,8 +837,8 @@ module.exports = {
             }
         });
     },
-    getCompanyProfile: function (data, callback) {
-        sails.query(function (err, db) {
+    getCompanyProfile: function(data, callback) {
+        sails.query(function(err, db) {
             if (err) {
                 console.log(err);
                 callback({
@@ -854,7 +854,7 @@ module.exports = {
                 }, {
                     forgotpassword: 0,
                     password: 0
-                }).toArray(function (err, data2) {
+                }).toArray(function(err, data2) {
                     if (err) {
                         console.log(err);
                         callback({
@@ -865,8 +865,8 @@ module.exports = {
                         if (data2[0].company.job && data2[0].company.job.length > 0) {
                             var myjob = [];
                             var i = 0;
-                            _.each(data2[0].company.job, function (z) {
-                                Job.findone(z, function (jobRespo) {
+                            _.each(data2[0].company.job, function(z) {
+                                Job.findone(z, function(jobRespo) {
                                     if (jobRespo.value != false) {
                                         myjob.push(jobRespo);
                                         i++;
@@ -899,8 +899,8 @@ module.exports = {
             }
         });
     },
-    viewCompanyProfile: function (data, callback) {
-        sails.query(function (err, db) {
+    viewCompanyProfile: function(data, callback) {
+        sails.query(function(err, db) {
             if (err) {
                 console.log(err);
                 callback({
@@ -916,7 +916,7 @@ module.exports = {
                 }, {
                     forgotpassword: 0,
                     password: 0
-                }).toArray(function (err, data2) {
+                }).toArray(function(err, data2) {
                     if (err) {
                         console.log(err);
                         callback({
@@ -927,7 +927,7 @@ module.exports = {
                         if (data2[0].company.job && data2[0].company.job.length > 0) {
                             Job.findone({
                                 _id: data.job
-                            }, function (jobRespo) {
+                            }, function(jobRespo) {
                                 if (jobRespo.value != false) {
                                     data2[0].company.job = jobRespo;
                                     callback(data2[0]);
@@ -952,8 +952,8 @@ module.exports = {
         });
     },
     //id to be changed
-    findProfile: function (data, callback) {
-        sails.query(function (err, db) {
+    findProfile: function(data, callback) {
+        sails.query(function(err, db) {
             if (err) {
                 console.log(err);
                 callback({
@@ -966,7 +966,7 @@ module.exports = {
                 }, {
                     forgotpassword: 0,
                     password: 0
-                }).toArray(function (err, data2) {
+                }).toArray(function(err, data2) {
                     if (err) {
                         console.log(err);
                         callback({
@@ -989,28 +989,28 @@ module.exports = {
             }
         });
     },
-    edit: function (data, callback) {
+    edit: function(data, callback) {
         if (data.company && data.company.job && data.company.job.length > 0) {
-            _.each(data.company.job, function (r) {
+            _.each(data.company.job, function(r) {
                 r._id = sails.ObjectID(r._id);
             });
         }
         if (data.applied && data.applied.length > 0) {
-            _.each(data.applied, function (r) {
+            _.each(data.applied, function(r) {
                 r._id = sails.ObjectID(r._id);
             });
         }
         if (data.shortlist && data.shortlist.length > 0) {
-            _.each(data.shortlist, function (r) {
+            _.each(data.shortlist, function(r) {
                 r._id = sails.ObjectID(r._id);
             });
         }
         if (data.setinterview && data.setinterview.length > 0) {
-            _.each(data.setinterview, function (r) {
+            _.each(data.setinterview, function(r) {
                 r._id = sails.ObjectID(r._id);
             });
         }
-        sails.query(function (err, db) {
+        sails.query(function(err, db) {
             if (err) {
                 console.log(err);
                 callback({
@@ -1023,7 +1023,7 @@ module.exports = {
                     _id: user
                 }, {
                     $set: data
-                }, function (err, updated) {
+                }, function(err, updated) {
                     if (err) {
                         console.log(err);
                         callback({
@@ -1050,8 +1050,8 @@ module.exports = {
         });
     },
     ////////
-    findCompanyProfile: function (data, callback) {
-        sails.query(function (err, db) {
+    findCompanyProfile: function(data, callback) {
+        sails.query(function(err, db) {
             if (err) {
                 console.log(err);
                 callback({
@@ -1070,7 +1070,7 @@ module.exports = {
                         _id: 1,
                         company: 1
                     }
-                }]).toArray(function (err, data2) {
+                }]).toArray(function(err, data2) {
                     if (err) {
                         console.log(err);
                         callback({
@@ -1092,11 +1092,11 @@ module.exports = {
             }
         });
     },
-    applyForJob: function (data, callback) {
-        User.findone(data, function (useRespo) {
+    applyForJob: function(data, callback) {
+        User.findone(data, function(useRespo) {
             if (useRespo.value != false) {
                 if (useRespo.applied && useRespo.applied.length > 0) {
-                    var index = sails._.findIndex(useRespo.applied, function (o) {
+                    var index = sails._.findIndex(useRespo.applied, function(o) {
                         return o._id == data.job;
                     });
                     if (index == -1) {
@@ -1121,7 +1121,7 @@ module.exports = {
                 }
 
                 function callEdit(compRespo) {
-                    User.edit({ _id: data._id, applied: compRespo.applied }, function (editRespo) {
+                    User.edit({ _id: data._id, applied: compRespo.applied }, function(editRespo) {
                         if (editRespo.value != false) {
                             callback({
                                 value: true,
@@ -1143,11 +1143,11 @@ module.exports = {
             }
         });
     },
-    shortlistForJob: function (data, callback) {
-        User.findone(data, function (useRespo) {
+    shortlistForJob: function(data, callback) {
+        User.findone(data, function(useRespo) {
             if (useRespo.value != false) {
                 if (useRespo.shortlist && useRespo.shortlist.length > 0) {
-                    var index = sails._.findIndex(useRespo.shortlist, function (o) {
+                    var index = sails._.findIndex(useRespo.shortlist, function(o) {
                         return o._id == data.job;
                     });
                     if (index == -1) {
@@ -1172,7 +1172,7 @@ module.exports = {
                 }
 
                 function callEdit(compRespo) {
-                    User.edit({ _id: data._id, shortlist: compRespo.shortlist }, function (editRespo) {
+                    User.edit({ _id: data._id, shortlist: compRespo.shortlist }, function(editRespo) {
                         if (editRespo.value != false) {
                             callback({
                                 value: true,
@@ -1194,11 +1194,14 @@ module.exports = {
             }
         });
     },
-    setInterview: function (data, callback) {
-        User.findone(data, function (useRespo) {
+    setInterview: function(data, callback) {
+        if (data.date && data.date != "") {
+            data.date = new Date(data.date);
+        }
+        User.findone(data, function(useRespo) {
             if (useRespo.value != false) {
                 if (useRespo.setinterview && useRespo.setinterview.length > 0) {
-                    var index = sails._.findIndex(useRespo.setinterview, function (o) {
+                    var index = sails._.findIndex(useRespo.setinterview, function(o) {
                         return o._id == data.job;
                     });
                     if (index == -1) {
@@ -1221,6 +1224,7 @@ module.exports = {
                     useRespo.setinterview.push({
                         _id: sails.ObjectID(data.job),
                         designation: data.jobname,
+                        date: data.date,
                         time: data.time,
                         location: data.location,
                         content: data.content
@@ -1229,7 +1233,7 @@ module.exports = {
                 }
 
                 function callEdit(compRespo) {
-                    User.edit({ _id: data._id, setinterview: compRespo.setinterview }, function (editRespo) {
+                    User.edit({ _id: data._id, setinterview: compRespo.setinterview }, function(editRespo) {
                         if (editRespo.value != false) {
                             callback({
                                 value: true,
@@ -1251,8 +1255,8 @@ module.exports = {
             }
         });
     },
-    jobApplied: function (data, callback) {
-        sails.query(function (err, db) {
+    jobApplied: function(data, callback) {
+        sails.query(function(err, db) {
             if (err) {
                 console.log(err);
                 callback({
@@ -1260,17 +1264,17 @@ module.exports = {
                     comment: "Error"
                 });
             } else {
-                User.findone(data, function (useRespo) {
+                User.findone(data, function(useRespo) {
                     if (useRespo.value != false) {
                         if (useRespo.applied && useRespo.applied.length > 0) {
                             var compData = [];
                             var i = 0;
-                            _.each(useRespo.applied, function (respo) {
-                                User.findCompanyProfile({ _id: respo._id }, function (compRespo) {
+                            _.each(useRespo.applied, function(respo) {
+                                User.findCompanyProfile({ _id: respo._id }, function(compRespo) {
                                     if (compRespo.value != false) {
                                         Job.findone({
                                             _id: sails.ObjectID(compRespo.company.job._id)
-                                        }, function (jobRes) {
+                                        }, function(jobRes) {
                                             if (jobRes.value != false) {
                                                 compRespo.company.job = jobRes;
                                                 compData.push(compRespo);
@@ -1311,8 +1315,8 @@ module.exports = {
             }
         });
     },
-    jobShortlisted: function (data, callback) {
-        sails.query(function (err, db) {
+    jobShortlisted: function(data, callback) {
+        sails.query(function(err, db) {
             if (err) {
                 console.log(err);
                 callback({
@@ -1320,17 +1324,17 @@ module.exports = {
                     comment: "Error"
                 });
             } else {
-                User.findone(data, function (useRespo) {
+                User.findone(data, function(useRespo) {
                     if (useRespo.value != false) {
                         if (useRespo.shortlist && useRespo.shortlist.length > 0) {
                             var compData = [];
                             var i = 0;
-                            _.each(useRespo.shortlist, function (respo) {
-                                User.findCompanyProfile({ _id: respo._id }, function (compRespo) {
+                            _.each(useRespo.shortlist, function(respo) {
+                                User.findCompanyProfile({ _id: respo._id }, function(compRespo) {
                                     if (compRespo.value != false) {
                                         Job.findone({
                                             _id: sails.ObjectID(compRespo.company.job._id)
-                                        }, function (jobRes) {
+                                        }, function(jobRes) {
                                             if (jobRes.value != false) {
                                                 compRespo.company.job = jobRes;
                                                 compData.push(compRespo);
@@ -1371,8 +1375,8 @@ module.exports = {
             }
         });
     },
-    jobInterviewed: function (data, callback) {
-        sails.query(function (err, db) {
+    jobInterviewed: function(data, callback) {
+        sails.query(function(err, db) {
             if (err) {
                 console.log(err);
                 callback({
@@ -1380,17 +1384,17 @@ module.exports = {
                     comment: "Error"
                 });
             } else {
-                User.findone(data, function (useRespo) {
+                User.findone(data, function(useRespo) {
                     if (useRespo.value != false) {
                         if (useRespo.setinterview && useRespo.setinterview.length > 0) {
                             var compData = [];
                             var i = 0;
-                            _.each(useRespo.setinterview, function (respo) {
-                                User.findCompanyProfile({ _id: respo._id }, function (compRespo) {
+                            _.each(useRespo.setinterview, function(respo) {
+                                User.findCompanyProfile({ _id: respo._id }, function(compRespo) {
                                     if (compRespo.value != false) {
                                         Job.findone({
                                             _id: sails.ObjectID(compRespo.company.job._id)
-                                        }, function (jobRes) {
+                                        }, function(jobRes) {
                                             if (jobRes.value != false) {
                                                 compRespo.company.job = jobRes;
                                                 compData.push(compRespo);
@@ -1431,8 +1435,8 @@ module.exports = {
             }
         });
     },
-    viewApplied: function (data, callback) {
-        sails.query(function (err, db) {
+    viewApplied: function(data, callback) {
+        sails.query(function(err, db) {
             if (err) {
                 console.log(err);
                 callback({
@@ -1453,7 +1457,7 @@ module.exports = {
                     $match: {
                         "applied._id": sails.ObjectID(data.job)
                     }
-                }]).toArray(function (err, data2) {
+                }]).toArray(function(err, data2) {
                     if (err) {
                         console.log(err);
                         callback({
@@ -1462,7 +1466,7 @@ module.exports = {
                         });
                         db.close();
                     } else if (data2 && data2.length > 0) {
-                        _.each(data2, function (user) {
+                        _.each(data2, function(user) {
                             delete user.password;
                             delete user.forgotpassword;
                         });
@@ -1479,8 +1483,8 @@ module.exports = {
             }
         });
     },
-    viewShortlisted: function (data, callback) {
-        sails.query(function (err, db) {
+    viewShortlisted: function(data, callback) {
+        sails.query(function(err, db) {
             if (err) {
                 console.log(err);
                 callback({
@@ -1501,7 +1505,7 @@ module.exports = {
                     $match: {
                         "shortlist._id": sails.ObjectID(data.job)
                     }
-                }]).toArray(function (err, data2) {
+                }]).toArray(function(err, data2) {
                     if (err) {
                         console.log(err);
                         callback({
@@ -1510,7 +1514,7 @@ module.exports = {
                         });
                         db.close();
                     } else if (data2 && data2.length > 0) {
-                        _.each(data2, function (user) {
+                        _.each(data2, function(user) {
                             delete user.password;
                             delete user.forgotpassword;
                         });
@@ -1527,8 +1531,8 @@ module.exports = {
             }
         });
     },
-    viewInterviewed: function (data, callback) {
-        sails.query(function (err, db) {
+    viewInterviewed: function(data, callback) {
+        sails.query(function(err, db) {
             if (err) {
                 console.log(err);
                 callback({
@@ -1549,7 +1553,7 @@ module.exports = {
                     $match: {
                         "setinterview._id": sails.ObjectID(data.job)
                     }
-                }]).toArray(function (err, data2) {
+                }]).toArray(function(err, data2) {
                     if (err) {
                         console.log(err);
                         callback({
@@ -1558,7 +1562,7 @@ module.exports = {
                         });
                         db.close();
                     } else if (data2 && data2.length > 0) {
-                        _.each(data2, function (user) {
+                        _.each(data2, function(user) {
                             delete user.password;
                             delete user.forgotpassword;
                         });
@@ -1575,8 +1579,8 @@ module.exports = {
             }
         });
     },
-    countusers: function (data, callback) {
-        sails.query(function (err, db) {
+    countusers: function(data, callback) {
+        sails.query(function(err, db) {
             if (err) {
                 console.log(err);
                 callback({
@@ -1584,7 +1588,7 @@ module.exports = {
                 });
             }
             if (db) {
-                db.collection("user").count({}, function (err, number) {
+                db.collection("user").count({}, function(err, number) {
                     if (number != null) {
                         callback(number);
                         db.close();
